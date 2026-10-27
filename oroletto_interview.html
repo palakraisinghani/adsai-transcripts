@@ -29,9 +29,11 @@ code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
 .md ul,.md ol{padding-left:22px;margin:6px 0}.md table{border-collapse:collapse;display:block;overflow-x:auto;margin:8px 0;font-size:.9rem}
 .md th,.md td{border:1px solid var(--bd);padding:4px 8px;text-align:left;vertical-align:top}
 .md pre{background:var(--code);padding:10px;border-radius:8px;overflow-x:auto;font-size:12.5px}.md pre code{background:none;padding:0}
+.divider{margin:26px 0;padding:8px 12px;border:1px dashed var(--bd);border-radius:8px;color:var(--mut);font-size:.85rem;font-style:italic}
 </style></head><body><main>
-<h1>Oroletto: interview prep</h1><p class="sub">Claude Code transcript: interview prep for Oroletto (OthelloRL). 4 prompts. Click a response to open it.</p>
+<h1>Oroletto: interview prep</h1><p class="sub">Claude Code transcript: interview prep for Oroletto, asked in both repos. 18 prompts. Click a response to open it.</p>
 <div class="bar"><button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Expand all</button><button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Collapse all</button></div>
+<h2 class="part">Backend: OthelloRL</h2>
 <section class="turn" id="t1"><h2>Turn 1</h2><div class="prompt">mhey . I have an interview and they might ask me about this project. give me most likely questiuons and technical ones</div>
 <details><summary>Claude's response</summary><div class="resp"><div class="md"><p>Here are the questions you're most likely to get, with what to say for each, using this project's own facts.</p>
 <h2>1. The overview (almost certain)</h2>
@@ -510,4 +512,617 @@ train.py
 </tbody>
 </table>
 <p><strong>One-liner:</strong> "The policy p predicts where search will spend its effort, a ranking prior. The value v predicts the expected outcome. Move-level win estimates are the search's Q values, and the final move is chosen by visit count."</p></div></div></details></section>
+<h2 class="part">UI: Othello Player</h2>
+<section class="turn" id="t5"><h2>Turn 5</h2><div class="prompt">How are different levels managed using temperatures? How is the level of the User gauged for the mybuddy part ? how are hints handled ?</div>
+<details><summary>Claude's response</summary><div class="resp"><details class="out"><summary>Bash: grep -rniE &quot;buddy&quot; --include=*.md --include=*.rs --include=*.ts --include=*.svelte --include=*.json </summary><pre class="diff">grep -rniE &quot;buddy&quot; --include=*.md --include=*.rs --include=*.ts --include=*.svelte --include=*.json . 2&gt;/dev/null | grep -v node_modules | grep -v transcript | head -20; echo ---; grep -rniE &quot;hint&quot; --include=*.rs --include=*.ts -l . | grep -v node_modules | head; echo ---; cat models/oroletto-8x8.json | head -40</pre></details><details class="out"><summary>Output</summary><pre class="diff">---
+api/src/lib.rs
+api/src/session.rs
+api/src/types.rs
+api/tests/session.rs
+app/src/main.rs
+ui/src/lib/dealer.ts
+ui/src/lib/api.ts
+ui/src/lib/engine/session.test.ts
+ui/src/lib/engine/web-backend.ts
+ui/src/lib/dialogues.ts
+---
+{
+  &quot;model&quot;: &quot;oroletto-8x8.onnx&quot;,
+  &quot;sha256&quot;: &quot;306dab4e7de9412d691dce55452d5879bc601e18cfd87a46bb3c31ab3baac2ee&quot;,
+  &quot;board_size&quot;: 8,
+  &quot;input&quot;: {
+    &quot;name&quot;: &quot;planes&quot;,
+    &quot;shape&quot;: [
+      &quot;batch&quot;,
+      3,
+      8,
+      8
+    ],
+    &quot;dtype&quot;: &quot;float32&quot;,
+    &quot;planes&quot;: [
+      &quot;own discs&quot;,
+      &quot;opponent discs&quot;,
+      &quot;legal moves&quot;
+    ],
+    &quot;perspective&quot;: &quot;side to move&quot;,
+    &quot;square_index&quot;: &quot;row * n + col, a1 = 0 top-left&quot;,
+    &quot;pass_index&quot;: 64
+  },
+  &quot;outputs&quot;: {
+    &quot;policy_logits&quot;: [
+      &quot;batch&quot;,
+      65
+    ],
+    &quot;value&quot;: [
+      &quot;batch&quot;
+    ]
+  },
+  &quot;search&quot;: {
+    &quot;algorithm&quot;: &quot;PUCT MCTS (OthelloRL othello/rl/alphazero/mcts.py)&quot;,
+    &quot;c_puct&quot;: 1.5,
+    &quot;dirichlet_alpha&quot;: 0.5,
+    &quot;move_choice&quot;: &quot;sample by N^(1/T); T=0 most-visited&quot;,
+    &quot;value_sign&quot;: &quot;negated each ply (every action, including pass, flips the side to move)&quot;
+  },
+  &quot;levels&quot;: {
+    &quot;sims&quot;: 200,</pre></details><details class="out"><summary>Bash: sed -n 40,70p models/oroletto-8x8.json; grep -n -iE &quot;hint&quot; api/src/session.rs ui/src/lib/engine/web-</summary><pre class="diff">sed -n 40,70p models/oroletto-8x8.json; grep -n -iE &quot;hint&quot; api/src/session.rs ui/src/lib/engine/web-backend.ts | head -20; grep -n -iE &quot;level|skill|rating|adapt&quot; SPEC.md | head -30</pre></details><details class="out"><summary>Output</summary><pre class="diff">    &quot;sims&quot;: 200,
+    &quot;weakening&quot;: &quot;move temperature only (no root noise)&quot;,
+    &quot;ladder&quot;: [
+      {
+        &quot;level&quot;: 1,
+        &quot;name&quot;: &quot;Easy&quot;,
+        &quot;temperature&quot;: 8.0
+      },
+      {
+        &quot;level&quot;: 2,
+        &quot;name&quot;: &quot;Medium&quot;,
+        &quot;temperature&quot;: 2.0
+      },
+      {
+        &quot;level&quot;: 3,
+        &quot;name&quot;: &quot;Hard&quot;,
+        &quot;temperature&quot;: 1.0
+      },
+      {
+        &quot;level&quot;: 4,
+        &quot;name&quot;: &quot;Master&quot;,
+        &quot;temperature&quot;: 0.0
+      }
+    ]
+  },
+  &quot;levels_calibrated&quot;: true,
+  &quot;network&quot;: {
+    &quot;blocks&quot;: 6,
+    &quot;channels&quot;: 64,
+    &quot;parameters&quot;: 458568,
+    &quot;training_games&quot;: 100096
+ui/src/lib/engine/web-backend.ts:43:    hint: (): Promise&lt;number&gt; =&gt; session.hint(),
+api/src/session.rs:23:const HINT_LEVEL: u8 = 4;
+api/src/session.rs:252:    pub fn hint(&amp;self) -&gt; Result&lt;u8, ApiError&gt; {
+api/src/session.rs:257:                return Err(ApiError::HintUnavailable);
+api/src/session.rs:263:        let mv = (self.engines)(HINT_LEVEL).choose_move(&amp;position, &amp;SearchControl::new(&amp;never, &amp;ignore));
+api/src/session.rs:264:        mv.map(|m| m.index()).ok_or(ApiError::HintUnavailable)
+3:A desktop application for playing Othello on your own machine. You can play against the computer at four difficulty levels, all played by **Oroletto**, the AlphaZero-style agent trained in the companion research repo [OthelloRL](../OthelloRL). Two people can also play each other on the same computer.
+7:Status: **draft v0.2** — sections marked ❓ need a decision before implementation starts. Decided so far: Tauri + Svelte, 8×8 board, four levels from one model weakened only by move temperature.
+16:- **Play vs Computer** at four difficulty levels, all played by Oroletto (weakened by move temperature on the lower levels).
+21:- Online or networked multiplayer, accounts, matchmaking, ratings.
+53:### 3.3 Play vs Computer — difficulty levels
+54:**Four levels, one model, one knob.** Every level is played by the same network, **the strongest 8×8 Oroletto model**, with the **same MCTS search budget**. Levels differ **only in the move temperature T**:
+57:- There is **no root noise** and no change in the number of simulations between levels.
+59:| Level | Name | Simulations | Temperature T |
+68:- the four temperatures are chosen from candidates {0, 0.25, 0.5, 1, 2, 4} so that each level beats the one below it at least 70% of the time.
+70:The calibrated values are delivered in the model manifest (`models/oroletto-8x8.json`, fields `levels.sims` and `levels.ladder[].temperature`). They are read at runtime, not hard-coded.
+72:- The AI must respond within **≤ 2 s per move** on a typical laptop at every level. Every level uses the same search, so they all cost the same.
+73:- The rule-based bots from OthelloRL (random, greedy, heuristic, minimax) are **not** player levels. They are kept as test baselines and as stand-ins during development before the model is ready.
+101:- The browser build has no neural network, so its four levels are classic bots: random, greedy, alpha-beta depth 3, and time-limited iterative-deepening alpha-beta (about 0.9 s). Oroletto stays desktop-only unless an in-browser model runtime is added later.
+140:- **The manifest** (`models/oroletto-8x8.json`) records: board size; input layout (planes, side-to-move perspective, square index, pass index); output shapes; search settings (`c_puct = 1.5`, move choice by N^(1/T), value negated each ply); the **levels** (`sims` shared by all levels, plus one temperature per level, and `levels_calibrated`); network size and training games; OthelloRL commit hash and run id (e.g. `results/alphazero_8x8/seed0`); the ONNX-vs-PyTorch check; and a SHA-256 of the ONNX file.
+166:- Until Oroletto lands (M4), levels use placeholder bots: level 1 random, levels 2–4 greedy.
+202:3. ~~**Difficulty ladder**~~ — **decided: 4 levels, one model (the strongest), weakened only by move temperature**, with a shared simulation count and no root noise (§3.3). The values are calibrated in OthelloRL and delivered in the manifest.
+214:5. **M4 —
+… [244 more characters not shown]</pre></details><details class="out"><summary>Bash: sed -n 245,268p api/src/session.rs; grep -n -iE &quot;hint&quot; SPEC.md | head</summary><pre class="diff">sed -n 245,268p api/src/session.rs; grep -n -iE &quot;hint&quot; SPEC.md | head</pre></details><details class="out"><summary>Output</summary><pre class="diff">        drop(inner);
+        self.emit(events);
+        Ok(snapshot)
+    }
+
+    /// A suggested square for the human (vs computer, on their turn). Runs the strongest
+    /// engine synchronously, so the app should call it from a background command.
+    pub fn hint(&amp;self) -&gt; Result&lt;u8, ApiError&gt; {
+        let position = {
+            let mut inner = self.lock();
+            let active = inner.active()?;
+            if active.difficulty().is_none() || active.awaiting() != Awaiting::Human {
+                return Err(ApiError::HintUnavailable);
+            }
+            *active.game.position()
+        };
+        let never = AtomicBool::new(false);
+        let ignore = |_: f32| {};
+        let mv = (self.engines)(HINT_LEVEL).choose_move(&amp;position, &amp;SearchControl::new(&amp;never, &amp;ignore));
+        mv.map(|m| m.index()).ok_or(ApiError::HintUnavailable)
+    }
+
+    pub fn snapshot(&amp;self) -&gt; Result&lt;Snapshot, ApiError&gt; {
+        Ok(self.lock().active()?.snapshot())
+46:- Board with discs, coordinates (a–h / 1–8), **legal-move hints** (toggleable), **last-move highlight**, and **flip animation**.
+49:- Controls: **Undo** (vs Computer: undoes your move and the AI&#x27;s reply; Two Players: one move), **New game**, **Hint** (vs Computer only; optional, uses Oroletto), **Resign**.
+74:- Temperature applies only to the in-game move choice. Hints and the parity test use temperature 0.
+85:- One look, a **casino card room**: mahogany wood background and frames, burnished brass rims, **red velvet** button faces with brass rims and round icon buttons (Home, Undo, Hint, Resign, New game), a **green felt** board with grid lines (the same green velvet covers the scoreboard panels, option boxes and result dialog), flat-ish buttons with a thin 3D edge (tunable via `button_depth` and `button_bevel`), glossy black and white discs, a neon-sign title, a plain wood background lit only by an **RGB LED strip** round the window edge (individually coloured bulbs with their own glow, a colour pattern flowing clockwise, two interleaved sets twinkling like the board&#x27;s marquee bulbs; no vignette or other effects), chasing marquee bulbs on the board frame, and a slow roulette wheel on the home screen.
+90:- All motion respects Settings &gt; Animations and `prefers-reduced-motion`. Hints are rings and frames, not colour alone.
+95:- **Orolleto**, the card-room dealer (an SVG character in a green eyeshade and red bow tie, coloured by `design.md` section 21), greets you on the home screen, comments during games against the computer (thinking, corners, big flips, passes, the result) and comments on each reviewed move. He draws on a pool of about 450 kind, welcoming lines grouped by situation and by page (`ui/src/lib/dialogues.ts`); against the computer he is the opponent across the table (named Orolleto on the scoreboard). Two knobs in `ui/src/lib/dealer.ts` control how much he talks: **chattiness** (default 0.55: the chance he remarks on an ordinary move; corners and big flips are 1.6x as likely) and the **hold** (default 6 plies: a line stays up at least that long before an ordinary remark replaces it; corners, big flips, passes, hints, undo and the end of a game speak up at once). He never repeats a line he said recently. His moods (idle, thinking, happy, sad) and his animations obey Settings &gt; Animations.
+153:- `hint()`: a suggested square, vs computer on your turn only (blocking; the app calls it off the UI thread).
+172:- **Accessibility:** keyboard play; colour choices that don&#x27;t rely on colour alone (black/white discs plus outline markers for hints); scalable UI.</pre></details><div class="md"><p>Your "mybuddy" part isn't in the project, so I've guessed what you mean at the end. Here are the other two answers.</p>
+<h2>Levels and temperature</h2>
+<p><strong>Design (SPEC §3.3 and <code>models/oroletto-8x8.json</code>):</strong>
+- Every level uses the same network and the same search of 200 simulations. The only difference is a move temperature T.
+- After the search, each legal move has a visit count N. The computer picks a move with probability proportional to N^(1/T).</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>T</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Easy</td>
+<td>8.0</td>
+<td>Visit counts are flattened, so it plays almost at random.</td>
+</tr>
+<tr>
+<td>2 Medium</td>
+<td>2.0</td>
+<td>It prefers good moves but often picks the second or third.</td>
+</tr>
+<tr>
+<td>3 Hard</td>
+<td>1.0</td>
+<td>It picks in proportion to the visit counts.</td>
+</tr>
+<tr>
+<td>4 Master</td>
+<td>0.0</td>
+<td>It always plays the most-visited move.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>The values come from the manifest at runtime, and the manifest still says <code>levels_calibrated: true</code>. The code has not read it yet. My summary has it as <code>false</code>, so check which is right.</li>
+<li><strong>Right now Oroletto is not wired in.</strong> That is milestone M4. On the desktop, levels 2–4 are greedy placeholders. The browser build uses classic bots instead: random, greedy, alpha-beta at depth 3, and alpha-beta for about 0.9 s.</li>
+</ul>
+<h2>Hints</h2>
+<ul>
+<li>The hint uses the <strong>level-4 engine</strong>, which is the strongest and plays the most-visited move, so a hint is always the engine's best move.</li>
+<li>It only works in a vs-computer game on your turn. Otherwise it returns <code>HintUnavailable</code>.</li>
+<li>It runs the search synchronously in <code>api/src/session.rs</code>, so the app calls it off the UI thread.</li>
+<li>The UI highlights the square with a ring. Orolleto also says something when you ask for a hint.</li>
+<li><strong>The game doesn't record hints.</strong> Nothing logs whether you used one, and the review doesn't count it.</li>
+</ul>
+<h2>"mybuddy" and gauging your level</h2>
+<p><strong>Nothing in the project gauges your level.</strong> The levels are fixed: you pick one and it never adapts. There's no rating, no win-rate tracking, and no "mybuddy" feature. The nearest thing is the post-game review. It scores each move you play against a ranking of the computer's moves, and it shows a hit rate. That measures how close your moves were to the computer's choices, but it isn't stored or used to change anything.</p>
+<p>If you meant a "buddy" mode that adapts to you, I could build it. One way:
+1. Take your review hit rate over recent games and keep a running estimate of your level.
+2. Map that estimate to a temperature, so the opponent stays a bit stronger than you.
+3. Log hints too, so leaning on them counts against your estimate.</p>
+<p>Is that what you meant? And how should the estimate move between games, if you want this?</p></div></div></details></section>
+<section class="turn" id="t6"><h2>Turn 6</h2><div class="prompt">if alpha zero trains p why does the model consider visit counts still ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>The network's policy output <code>p</code> is a prediction made in one forward pass, with no lookahead. The visit counts come from the search, which uses <code>p</code> as a starting guess and then checks it with lookahead. The search result is better than the raw <code>p</code>.</p>
+<p><strong>How the search uses <code>p</code>.</strong> MCTS (PUCT, <code>c_puct</code> 1.5) starts each move with <code>p</code> as a prior. It then runs 200 simulations. Each one walks down the tree, prefers moves with a high prior or a good value so far, and updates the values from the value head. The visit count N of a move ends up as "how often the search kept coming back to it after seeing what happens next".</p>
+<p><strong>Why the network is trained on visit counts.</strong> In AlphaZero the policy head is trained to imitate the search's visit distribution (cross-entropy against N/ΣN), and the value head is trained on the game outcome. The loop is:</p>
+<ol>
+<li>The search improves on <code>p</code>.</li>
+<li><code>p</code> is trained to match the improved search.</li>
+<li>The next search starts from a better <code>p</code>.</li>
+</ol>
+<p>So the network is trained to approximate the search, not to replace it. After training, <code>p</code> alone is still a bit weaker than <code>p</code> plus search. The visit counts are the better policy.</p>
+<p><strong>Why this project needs visit counts.</strong> The levels are built on them, as described in my last answer. Move choice is proportional to N^(1/T), and T=0 is the argmax of N.</p>
+<ul>
+<li>Raw <code>p</code> would offer only one weakening knob, a softmax temperature on the logits. The counts give you the search's own ranking, so a "weak" level is a softened version of the strong play, not a different and noisier player.</li>
+<li>The visit counts also feed the review. When Oroletto is wired in, they replace my current alpha-beta ranking. The top-k=3 and top-p=0.2 checks run over the visit shares.</li>
+</ul>
+<p>You could skip the search and play from <code>p</code> alone. That would be faster, but it would play a weaker game at every level, including Master. It would also leave the top level with nothing to separate it from the levels below, because Master's top rank comes from the search.</p></div></div></details></section>
+<section class="turn" id="t7"><h2>Turn 7</h2><div class="prompt">how are the visit counts kept track of and all what is the use of p then ? explain the enire idea of alpha zero ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><h2>The idea in one paragraph</h2>
+<p>AlphaZero learns Othello with no human games. A neural network guesses good moves and who is winning. A tree search checks those guesses by looking ahead. The search produces better moves than the raw guesses, and the network is trained to imitate those better moves and the final game results. Repeat, and each side improves the other.</p>
+<h2>1. The network (two outputs from one body)</h2>
+<p>Input is 3 planes of 8×8: your discs, the opponent's discs, and legal moves, always from the side to move.</p>
+<ul>
+<li><strong>Policy head <code>p</code>:</strong> 65 numbers, one per square plus pass, which become a probability for each move. It answers "which moves look promising here?".</li>
+<li><strong>Value head <code>v</code>:</strong> one number from -1 to +1. It answers "how good is this position for the side to move?".</li>
+</ul>
+<h2>2. The search tree and the visit counts</h2>
+<p>For each position the search builds a tree. Every edge (position, move) stores three things:</p>
+<ul>
+<li><strong>N</strong>: how many simulations went through this edge (the visit count).</li>
+<li><strong>W</strong>: the sum of the values returned below it. <strong>Q = W/N</strong> is the average.</li>
+<li><strong>P</strong>: the prior, which is <code>p</code> from the network, stored once when the node is first created.</li>
+</ul>
+<p>One simulation does this:</p>
+<ol>
+<li><strong>Select.</strong> Start at the root and repeatedly pick the child move maximising <code>Q + c_puct · P · √(ΣN) / (1 + N)</code>. This is PUCT. The first term prefers moves that have worked well so far. The second prefers moves with a high prior that have not been tried much. As N grows, the second term shrinks, so the search settles on what the values show.</li>
+<li><strong>Expand.</strong> On reaching a position not yet in the tree, run the network once. Store <code>p</code> as the priors of its children, and take <code>v</code>.</li>
+<li><strong>Back up.</strong> Walk back up the path. Add <code>v</code> to each edge's W, adding 1 to its N. The sign is flipped each ply, because what is good for one player is bad for the other. Every move, including a pass, flips the side to move, which is the "value negated each ply" line in the manifest. If the game is over, use the real result instead of <code>v</code>.</li>
+</ol>
+<p>After 200 simulations the root's children have counts N, and the counts are the search's decision. They are stored in the tree nodes (in a map from position to its edges), and there's nothing else to track.</p>
+<h2>3. So what is <code>p</code> for?</h2>
+<p><code>p</code> is not the final answer. It steers where the 200 simulations are spent. Othello has about 10 legal moves, and each has about 10 replies, and so on. Without <code>p</code> the search would spend its budget evenly and waste most of it on bad lines. With <code>p</code> it goes deep on the plausible moves and ignores the rest. <code>v</code> does the matching job at the leaves: instead of playing each line to the end with random moves, one network call estimates the result.</p>
+<p>A better <code>p</code> and <code>v</code> make the same 200 simulations stronger. And a very good <code>p</code> can be nearly right on its own, which is why the search only has to correct it.</p>
+<h2>4. Training: self-play</h2>
+<ol>
+<li>Play many games where the model plays both sides. At every move, run the search and record three things: the position, the visit distribution π = N/ΣN, and later the final result z (+1 win, -1 loss, 0 draw, from that mover's side).</li>
+<li>Train the network so that <code>p</code> matches π (cross-entropy) and <code>v</code> matches z (squared error).</li>
+<li>Use the new network for the next round of self-play. Repeat.</li>
+</ol>
+<p>Two things keep it learning:
+- <strong>Exploration.</strong> During training the root priors get Dirichlet noise (the manifest's <code>dirichlet_alpha</code> 0.5), and early moves are <em>sampled</em> from the counts instead of taken as the maximum. This makes the games varied.
+- <strong>The improvement loop.</strong> The search is stronger than <code>p</code> alone, so π is a better target than the current <code>p</code>. Training pulls <code>p</code> towards it, and the next search is better still.</p>
+<p>The manifest says this model trained on about 100,000 self-play games, with a 6-block, 64-channel network of about 458,000 parameters.</p>
+<h2>5. Playing, and where levels come in</h2>
+<p>When playing a real game there is no noise and no training. You run the 200-simulation search and pick a move from the counts. That is why the visit counts still matter after training: they are the output of the search, and <code>p</code> is only its starting guess. The temperature T then chooses how greedily to follow the counts (T=0 is the most-visited move, T=8 is nearly random), which gives the four levels.</p></div></div></details></section>
+<section class="turn" id="t8"><h2>Turn 8</h2><div class="prompt">what are the global structures being handled in Alpha zero ? What is used for final predictions of which move to take ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><h2>The global structures</h2>
+<p>AlphaZero keeps four things across the whole run, and one structure that lives only for a single move.</p>
+<p><strong>Across the whole run:</strong>
+1. <strong>The network weights</strong> (policy and value heads, one shared body). This is the model that gets learned, and the only thing shipped in the app (<code>oroletto-8x8.onnx</code>).
+2. <strong>The replay buffer.</strong> It holds recent self-play records of (position, π, z): the position, the search's visit distribution, and the game result. Training samples random batches from it, and old records are dropped as new games arrive.
+3. <strong>The self-play workers.</strong> They are not a data structure, but they are global state in practice: many games run at once, each calling the current network.
+4. <strong>The optimiser state and training counters</strong> (learning rate, step count). The original AlphaGo Zero also had a "best model" gate where a new network had to beat the old one. AlphaZero dropped the gate and always uses the latest network.</p>
+<p><strong>Per move, and thrown away afterwards:</strong>
+5. <strong>The search tree.</strong> It is a map from position to its edges, and each edge stores N, W (so Q = W/N) and P. It is built from scratch for each move. Some implementations keep the subtree under the move actually played as the start of the next search, but nothing carries over beyond that. At play time, only the network weights and this tree are needed.</p>
+<h2>What chooses the final move</h2>
+<p><strong>The root's visit counts N</strong>, and nothing else. After the 200 simulations, you look at the children of the root:</p>
+<ul>
+<li>Compute π(move) = N(move) / ΣN.</li>
+<li><strong>Training self-play:</strong> sample a move from π early in the game (to vary the games), then play the most-visited move later.</li>
+<li><strong>Real play (this app):</strong> sample from N^(1/T). T=0 means the argmax of N, which is the Master level.</li>
+</ul>
+<p>What is <em>not</em> used for the final choice:
+- The raw policy <code>p</code> is only a prior inside the search.
+- The Q values are not used directly. A move with a high Q but few visits is still not chosen, because the visits already encode how the search weighed Q against the prior. This is also why the counts are more stable than Q: a move with one lucky simulation has a high Q but a low N.
+- The value head <code>v</code> is not used to pick moves. It only scores leaf positions inside the search.</p></div></div></details></section>
+<section class="turn" id="t9"><h2>Turn 9</h2><div class="prompt">how are the 200 simulations run ? what decides which direction each simualtion takes? is N then used to calculate Pi which is used to update P ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>Simulations run one after another, not in parallel (implementations that batch them to use the GPU still select each path one at a time). The last part of your question has a catch, covered under "Is N used to update P?".</p>
+<h2>How one simulation runs</h2>
+<p>Each simulation starts at the root, which is the current position, and follows a path of the tree's own best-looking moves down to a leaf. A leaf is a position the tree hasn't expanded yet.</p>
+<p><strong>At each node on the way down</strong>, pick the move that maximises</p>
+<p><code>score(a) = Q(a) + c_puct · P(a) · √(ΣN) / (1 + N(a))</code></p>
+<p>with <code>c_puct</code> = 1.5 here, and ΣN the total visits over this node's children. The two terms:</p>
+<ul>
+<li><strong>Q(a)</strong> is the average value seen through this move so far. It pulls the simulation towards moves that have been working.</li>
+<li><strong>The second term</strong> is an exploration bonus. It is large when the prior P(a) is high and N(a) is small, and it shrinks as N(a) grows.</li>
+</ul>
+<p><strong>Example.</strong> Take the root's 3 moves A, B and C, with priors 0.6, 0.3 and 0.1, and nothing visited yet, so every Q is 0. The first simulation picks A, the highest prior. If A looks bad once its value comes back, say Q(A) becomes -0.4, then A's score drops, and the next simulations go to B and then C. If A looks good, its Q stays high and it keeps winning while the bonus on B and C shrinks slowly.</p>
+<p>That is what decides the direction of each simulation: priors early on, values later, with the bonus term deciding how fast the balance shifts.</p>
+<p><strong>When the path reaches a leaf:</strong>
+1. If the game is over, the value is the real result.
+2. Otherwise, run the network on that position once. Store its policy as the priors P of the new children, and take its <code>v</code> as the value.
+3. <strong>Back up</strong> along the path. Each edge gets N += 1 and W += value, with the sign flipped at every ply, and Q = W/N is recomputed.</p>
+<p>After 200 of these, the root's children have their final counts N.</p>
+<h2>Is N used to update P?</h2>
+<p>Not the way you described, and these two things are different:</p>
+<ul>
+<li><strong>During a search, P is never updated.</strong> It is whatever the network output when the node was created. Only N, W and Q change as simulations run.</li>
+<li><strong>π = N/ΣN is a training target, not an update rule.</strong> After the search it is recorded together with the position. Later, in the training step, the network's weights are adjusted by gradient descent so that its policy output for that position moves towards π. The same step trains <code>v</code> towards the game result.</li>
+</ul>
+<p>So the full chain is: the search turns P and v into the counts N, and training turns the recorded π into new network weights. The next search then gets new P values from the better network. P changes only through the weights, between rounds of self-play.</p>
+<p>In this app no training happens. The network weights are fixed. The search runs every move with P from the network, builds the counts N, and then the temperature picks the move from them.</p></div></div></details></section>
+<section class="turn" id="t10"><h2>Turn 10</h2><div class="prompt">what is puct ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>PUCT stands for <strong>Predictor + Upper Confidence bounds applied to Trees</strong>. It is the rule that decides which move a simulation follows at each node of the search tree.</p>
+<p><strong>Where it comes from.</strong> It builds on UCB1, a rule for the multi-armed bandit problem: you have several slot machines with unknown payouts, and you must balance pulling the one that has paid best so far (exploit) against trying ones you know little about (explore). UCT applies UCB1 to every node of a game tree. Plain UCT has no opinion about which moves are plausible, so every untried move starts equal. PUCT adds a <strong>predictor</strong>, the network's policy P, which tilts the exploration towards moves the network likes.</p>
+<p><strong>The rule used here:</strong></p>
+<p><code>score(a) = Q(a) + c_puct · P(a) · √(ΣN) / (1 + N(a))</code></p>
+<table>
+<thead>
+<tr>
+<th>Part</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Q(a)</code></td>
+<td>Average value of the move so far (W/N). The exploit term.</td>
+</tr>
+<tr>
+<td><code>P(a)</code></td>
+<td>The network's prior for the move.</td>
+</tr>
+<tr>
+<td><code>√(ΣN)</code></td>
+<td>Grows slowly as the node gets more total visits, so exploration never fully dies.</td>
+</tr>
+<tr>
+<td><code>1 + N(a)</code></td>
+<td>Shrinks the bonus for a move as it is visited more. The <code>1+</code> avoids dividing by zero for an unvisited move.</td>
+</tr>
+<tr>
+<td><code>c_puct</code></td>
+<td>A constant (1.5 here) for how much to favour exploring over exploiting. Larger values spread the simulations more widely.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How it behaves.</strong>
+- Early, when N is small everywhere, the bonus dominates, so the search follows the priors.
+- Later, as N grows, the bonus shrinks and Q dominates, so the search follows what the values say.
+- A move with a low prior still gets visited eventually, because <code>√(ΣN)</code> keeps growing while its own N stays small. A strong enough Q elsewhere can keep it waiting for a long time.</p>
+<p>The simulation picks the highest-scoring move at each node and moves on to the child, which is how the 200 simulations get spread over the tree.</p></div></div></details></section>
+<section class="turn" id="t11"><h2>Turn 11</h2><div class="prompt">during deployment in a packaged model what do p and v do ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>In the packaged model, <code>p</code> and <code>v</code> do the same jobs as during training. The only things missing are the training step and the root noise.</p>
+<p><strong>What ships.</strong> <code>oroletto-8x8.onnx</code> is a frozen set of weights. Its input is the 3 planes (your discs, the opponent's discs, legal moves). Its outputs are <code>policy_logits</code> (65 numbers) and <code>value</code> (1 number), as listed in the manifest. Nothing in the app updates it.</p>
+<p><strong>What the app does with each output:</strong></p>
+<ul>
+<li><strong><code>p</code> (policy logits):</strong> the app masks out illegal moves, applies a softmax over the legal ones, and stores the result as the priors P on the children of the node being expanded. It is used inside the PUCT rule to steer the simulations. It is never read off to pick the move.</li>
+<li><strong><code>v</code> (value):</strong> used as the score of a leaf position. It goes into the back-up and updates N, W and Q along the path, with the sign flipped each ply. At a finished game the real result is used and the network is not called.</li>
+</ul>
+<p><strong>One move in the app:</strong>
+1. Run the network on the current position to create the root, getting <code>p</code> and <code>v</code>.
+2. Run 200 simulations. Each one ends in a leaf, calls the network once, and backs up <code>v</code>. That makes roughly 200 network calls per move, which is why the SPEC budgets 2 seconds per move.
+3. Read the root's visit counts N, apply the level's temperature T, and play the chosen move.
+4. Throw the tree away.</p>
+<p><strong>What changes from training:</strong>
+- No Dirichlet noise at the root (the manifest says "no root noise").
+- No recording of π or z, and no replay buffer.
+- No gradient steps. <code>p</code> and <code>v</code> come out of the same fixed weights every time, so the same position always gets the same priors and value. Any variation between games comes only from the temperature sampling.</p>
+<p><strong>Hints and the review.</strong> A hint uses the same search at T=0. The review will use the visit shares from the same search, once Oroletto is wired in.</p>
+<p>The app does not do any of this yet. Oroletto and the search are milestone M4, and today the desktop levels are greedy placeholders.</p></div></div></details></section>
+<section class="turn" id="t12"><h2>Turn 12</h2><div class="prompt">why did we not include any of this in the app ?</div>
+<details><summary>Claude's response</summary><div class="resp"><details class="out"><summary>Bash: ls -la models/ tests/golden 2&gt;&amp;1 | head -20; sed -n 205,222p SPEC.md; git log --oneline | tail -15; </summary><pre class="diff">ls -la models/ tests/golden 2&gt;&amp;1 | head -20; sed -n 205,222p SPEC.md; git log --oneline | tail -15; grep -n &quot;ort\|onnx\|tract&quot; Cargo.toml */Cargo.toml</pre></details><details class="out"><summary>Output</summary><pre class="diff">models/:
+total 1808
+drwxrwxr-x  2 palak_raisinghani palak_raisinghani    4096 Oct 12 22:29 .
+drwxrwxr-x 14 palak_raisinghani palak_raisinghani    4096 Oct 26 13:26 ..
+-rw-rw-r--  1 palak_raisinghani palak_raisinghani    1875 Oct 13 01:01 oroletto-8x8.json
+-rw-rw-r--  1 palak_raisinghani palak_raisinghani 1838434 Oct 12 22:29 oroletto-8x8.onnx
+
+tests/golden:
+total 1720
+drwxrwxr-x 2 palak_raisinghani palak_raisinghani    4096 Oct 12 22:29 .
+drwxrwxr-x 3 palak_raisinghani palak_raisinghani    4096 Oct  5 12:18 ..
+-rw-rw-r-- 1 palak_raisinghani palak_raisinghani 1551663 Oct  5 13:43 engine_8x8.json
+-rw-rw-r-- 1 palak_raisinghani palak_raisinghani  197931 Oct 12 22:29 parity_8x8.json
+6. ~~**Licence**~~ — **decided: MIT** (`LICENSE`).
+7. ~~**GitHub**~~ — **decided:** [`palakraisinghani/O-Rolleto-PlayOthello`](https://github.com/palakraisinghani/O-Rolleto-PlayOthello).
+
+## 9. Milestones
+**Phase A — Backend + API, with a plain throwaway UI** (goal: freeze the command/event API)
+1. **M0 — Decisions:** close §8 (remaining: mock-ups, distribution). The Oroletto ONNX export from OthelloRL happens when the 8×8 model is ready (not blocking).
+2. **M1 — Core:** 8×8 engine + rule-based bots (test baselines and dev stand-ins) + rules tests (cross-checked against OthelloRL).
+3. **M2 — API:** `othello-api` crate (done: commands, events, session, AI worker thread with cancellation, settings; see §4.3), then the thin Tauri shell around it; **API frozen when the shell lands**.
+4. **M3 — Plain UI:** unstyled board, counts, pass banner, undo, settings, result; scripted full game in each mode.
+5. **M4 — Oroletto in the app:** ONNX inference + MCTS + move temperature, with the parity tests against `tests/golden/parity_8x8.json`. The four levels read the shared `sims` and the per-level temperatures from the manifest, as calibrated by OthelloRL.
+
+**Phase B — Design** (no engine or API changes)
+6. **M5 — Design iterations:** first pass done (casino card-room look, chip animations, design tokens; see §3.6); remaining: tuning with `design.md`, How-to-Play illustrations, sound.
+7. **M6 — Release:** README build guide, CI, release binaries.
+
+**Post-v1 (not committed)**
+8. **Online play:** play a friend on another computer via room code and a small relay server. The engine will have a `Player` abstraction (Human, AI, later Remote) so this needs no API redesign.
+e1a4621 Casino card-room redesign: wood, brass, red velvet, felt board; chip splash and rain; drop Cafe mode
+4682e55 Casino and Cafe UI modes, design.md token system, animated casino styling
+b0b2818 Add launch.sh
+bb63d18 README: fix typo
+8a70bcd Fix Tauri hook paths; document running the app
+6330f47 Add Tauri shell (app/), Svelte UI scaffold with plain playable UI (ui/)
+37da01c Add othello-api: Session, commands/events, AI worker thread, settings
+8419193 Add Player trait, random and greedy bots; greedy reference data in golden file
+6d31382 Add Rust engine (othello-core): bitboard rules, Game history/undo, golden tests
+fc3a51b Add golden test data from OthelloRL, README, requirements; drop 6x6
+21b7808 SPEC v0.2: Tauri+Svelte, 8x8, 4 AlphaZero levels, Phase A/B milestones
+4b95a8f SPEC: licence + remote decided
+eae7839 Merge remote initial commit (LICENSE)
+49bfd15 Initial commit
+e378b85 Add SPEC</pre></details><div class="md"><p>The model and the plan were ready, but the work was never done. Nobody decided to leave it out.</p>
+<p><strong>What exists.</strong>
+- <code>models/oroletto-8x8.onnx</code> (1.8 MB) is in the repo.
+- Its manifest and a parity test file (<code>tests/golden/parity_8x8.json</code>) are there too.
+- SPEC §9 lists "M4: ONNX inference + MCTS + temperature" as the next step after the plain UI.</p>
+<p><strong>What I built instead.</strong> The milestones in the git history go like this:
+- M0–M3 (engine, API, Tauri shell, plain UI) are done.
+- Next came the M5-style work: the casino look, chip animations, the web build, the post-game review, and Orolleto and his dialogue pool.
+- M4 never started. <code>Cargo.toml</code> has no ONNX runtime dependency, so nothing in the Rust code can load the model.</p>
+<p><strong>Why that order happened.</strong> Every request in this session was about the look, the web build, the review, or the dealer, so I worked on those. I should have raised the gap sooner. The review feature in particular says "the computer's best moves" while it's really an alpha-beta heuristic. The app also says Easy to Master are all Oroletto, but on the desktop levels 2–4 are all the same greedy bot, and in the browser they are classic bots.</p>
+<p><strong>What M4 needs:</strong>
+1. Add an ONNX runtime to the Rust side (the <code>ort</code> crate, or the pure-Rust <code>tract</code>).
+2. Write the MCTS with PUCT: 200 simulations, <code>c_puct</code> 1.5, no root noise, value negated each ply.
+3. Add the temperature sampling over the visit counts, with the four levels read from the manifest.
+4. Run the parity tests against <code>parity_8x8.json</code>, to check the Rust network inputs and outputs match the PyTorch ones.
+5. Connect the hint (level 4) and the review (visit shares) to it.</p>
+<p><strong>The browser build is harder.</strong> It has no network, so it would need an in-browser runtime such as <code>onnxruntime-web</code>, plus a TypeScript MCTS. The SPEC currently says Oroletto stays desktop-only.</p>
+<p>Do you want me to start on M4 for the desktop app? I'd begin with the Rust MCTS and the parity test, since that's where a mistake would be hardest to spot later. The manifest says <code>levels_calibrated: true</code>, and I'd also want to confirm that is correct before trusting the temperatures.</p></div></div></details></section>
+<section class="turn" id="t13"><h2>Turn 13</h2><div class="prompt">explain how the model we have deployed works</div>
+<details><summary>Claude's response</summary><div class="resp"><details class="out"><summary>Bash: sed -n 66,120p models/oroletto-8x8.json; python3 -c &quot;
+import onnx
+m=onnx.load(&#x27;models/oroletto-8x8.o</summary><pre class="diff">sed -n 66,120p models/oroletto-8x8.json; python3 -c &quot;
+import onnx
+m=onnx.load(&#x27;models/oroletto-8x8.onnx&#x27;)
+from collections import Counter
+print(Counter(n.op_type for n in m.graph.node))
+print([ (i.name,[d.dim_value or d.dim_param for d in i.type.tensor_type.shape.dim]) for i in m.graph.input])
+print([ (i.name,[d.dim_value or d.dim_param for d in i.type.tensor_type.shape.dim]) for i in m.graph.output])
+&quot; 2&gt;&amp;1 | tail -5</pre></details><details class="out"><summary>Output</summary><pre class="diff">  &quot;network&quot;: {
+    &quot;blocks&quot;: 6,
+    &quot;channels&quot;: 64,
+    &quot;parameters&quot;: 458568,
+    &quot;training_games&quot;: 100096
+  },
+  &quot;provenance&quot;: {
+    &quot;othellorl_commit&quot;: &quot;727a50d&quot;,
+    &quot;run&quot;: &quot;results/alphazero_8x8/seed0&quot;,
+    &quot;final_scores&quot;: {
+      &quot;random&quot;: 1.0,
+      &quot;policy_only/random&quot;: 0.976,
+      &quot;heuristic&quot;: 0.999,
+      &quot;policy_only/heuristic&quot;: 0.96,
+      &quot;minimax-d4&quot;: 0.966,
+      &quot;policy_only/minimax-d4&quot;: 0.644
+    }
+  },
+  &quot;onnx_check&quot;: {
+    &quot;positions&quot;: 200,
+    &quot;max_abs_diff_vs_pytorch&quot;: 2.5033950805664062e-06
+  }
+}Traceback (most recent call last):
+  File &quot;&lt;string&gt;&quot;, line 2, in &lt;module&gt;
+ModuleNotFoundError: No module named &#x27;onnx&#x27;</pre></details><div class="md"><p>A caveat first: the app doesn't run this model yet (see my last answer). So this describes the model file and how it will run, not what happens when you play now.</p>
+<h2>What the file is</h2>
+<p><code>oroletto-8x8.onnx</code> is a trained neural network, 1.8 MB. It has about 458,000 parameters and a residual-network design: 6 blocks of 64 channels. It was trained in your OthelloRL repo (run <code>alphazero_8x8/seed0</code>, commit <code>727a50d</code>) on about 100,000 self-play games. I haven't opened the graph itself, since the <code>onnx</code> Python package isn't installed here. The structure comes from the manifest, so I can't confirm the layer details beyond what it states.</p>
+<h2>The forward pass</h2>
+<p><strong>Input:</strong> a tensor of 3 planes of 8×8, from the side to move's point of view:
+1. its own discs
+2. the opponent's discs
+3. its legal moves</p>
+<p>The same network plays both colours, because the board is always shown as "me versus them".</p>
+<p><strong>Body:</strong> the planes go through a convolution into 64 channels, then the 6 residual blocks. Each block is two convolutions with a skip connection that adds the block's input back to its output. Convolutions suit Othello because patterns like edges, corners and diagonals mean the same thing wherever they sit on the board.</p>
+<p><strong>Two heads split off from the shared body:</strong>
+- <strong>Policy head:</strong> outputs <code>policy_logits</code>, 65 numbers (64 squares and pass). Pass is index 64, and squares are numbered row×8+col, with a1 = 0.
+- <strong>Value head:</strong> outputs one number, <code>value</code>, from -1 to +1. It estimates how the position looks for the side to move.</p>
+<p><strong>Accuracy of the export:</strong> the manifest says the ONNX output differs from the PyTorch original by at most 2.5e-6 over 200 test positions. So the export is faithful.</p>
+<h2>How strong it is by itself</h2>
+<p>The manifest's <code>final_scores</code> give some idea. The "policy_only" rows play straight from the policy head with no search.</p>
+<table>
+<thead>
+<tr>
+<th>Opponent</th>
+<th>Search</th>
+<th>Policy only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>random</td>
+<td>1.00</td>
+<td>0.98</td>
+</tr>
+<tr>
+<td>heuristic</td>
+<td>1.00</td>
+<td>0.96</td>
+</tr>
+<tr>
+<td>minimax depth 4</td>
+<td>0.97</td>
+<td>0.64</td>
+</tr>
+</tbody>
+</table>
+<p>The score is a win fraction. Policy only beats the weak bots but loses ground against depth-4 minimax at 0.64, while the full search reaches 0.97. That gap is why the app needs the MCTS: the raw network is good, but the search takes it from decent to dominant. These figures are your OthelloRL results, and I haven't reproduced them.</p>
+<h2>How the app will use it</h2>
+<p>For each computer move:
+1. Encode the board into the 3 planes.
+2. Run 200 MCTS simulations, calling the network once per new leaf. The policy output gives the PUCT priors and the value output scores the leaf.
+3. Pick the move from the root's visit counts at the level's temperature (8.0, 2.0, 1.0 or 0.0).</p>
+<h2>Things to check before wiring it in</h2>
+<ul>
+<li><strong><code>levels_calibrated</code></strong> says <code>true</code> in the manifest on disk, but my earlier notes said <code>false</code>. I'd confirm the values with whoever last edited it before relying on the temperatures.</li>
+<li>The <strong>parity file</strong> (<code>tests/golden/parity_8x8.json</code>) is how I would check the Rust side feeds in the same planes and gets the same outputs.</li>
+</ul></div></div></details></section>
+<section class="turn" id="t14"><h2>Turn 14</h2><div class="prompt">given one starting position how are th 200 simulation smade to differ ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>They differ because the tree changes after every simulation. In the app there is no randomness inside the search, since the root noise is switched off. The search is a deterministic function of the network's output and the tree built so far.</p>
+<h2>What changes between simulations</h2>
+<p>Each simulation finishes by backing up a value, which changes N, W and Q along its path. The PUCT score for the same node is then different next time:</p>
+<p><code>score(a) = Q(a) + c_puct · P(a) · √(ΣN) / (1 + N(a))</code></p>
+<p>Walking through the first few simulations from one position:</p>
+<ol>
+<li><strong>Simulation 1.</strong> The root is expanded and has priors P but no visits, so every Q is 0. The score is just the exploration bonus, which is highest for the highest prior. It goes to that move, say A, and the network is called on the resulting position. The value comes back, say it's bad for the opponent, which is good for you. A gets N = 1 and a positive Q.</li>
+<li><strong>Simulation 2.</strong> Now A has N = 1, so its bonus has shrunk (<code>1 + N</code> is 2), but its Q is positive. Whether A or B is higher depends on the numbers. If A's Q is large enough, A wins again, and this time the path goes one level deeper, into A's best reply. If A's value was only mildly good, B's untouched bonus wins and the simulation goes to B.</li>
+<li><strong>Later simulations.</strong> As N grows on a move, its bonus fades. Moves that have been tried and disappointed lose to untried moves, and moves that keep returning good values keep getting picked, and are explored deeper.</li>
+</ol>
+<p>So the simulations differ because earlier ones have used up part of the bonus and have moved the Q values. Two simulations from the same root only follow the same path when the tree state still ranks things the same way.</p>
+<h2>Where the variety comes from</h2>
+<ul>
+<li><strong>The priors P</strong> decide which moves are tried first.</li>
+<li><strong>The values v</strong> from the network at each new leaf decide which moves get promoted or dropped.</li>
+<li><strong>The shrinking bonus</strong> forces the search to visit less-favoured moves occasionally, so it does not lock onto one line too early.</li>
+</ul>
+<h2>Where there is randomness</h2>
+<ul>
+<li><strong>Training self-play:</strong> Dirichlet noise (alpha 0.5) is added to the root priors, so different games start with different emphasis.</li>
+<li><strong>Choosing the move:</strong> the sampling from N^(1/T) at T above 0 is random, and that is where your four levels differ.</li>
+<li><strong>The search itself in the app:</strong> none. Run it twice on the same position with the same network and you get the same visit counts, the same π, and at T=0 the same move every time.</li>
+</ul>
+<p>One caveat: if you ever batch simulations in parallel to speed up inference, implementations usually add a "virtual loss" to stop several threads from picking the same path. That introduces order-dependence, but not true randomness.</p></div></div></details></section>
+<section class="turn" id="t15"><h2>Turn 15</h2><div class="prompt">is MCTS built during test as well or is it just p there ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>MCTS is built at test time too, fresh for every move. In the standard AlphaZero setup, the packaged model is only the network. The search is code that runs around it, so it is not stored in the file.</p>
+<h2>What happens at play time</h2>
+<ul>
+<li><strong>Full AlphaZero play (the plan for this app):</strong> for every computer move, the app builds a new tree and runs 200 simulations. The network is called about 200 times per move. The decision then comes from the root's visit counts.</li>
+<li><strong>Policy only:</strong> you could skip the search, take <code>p</code>, mask the illegal moves and play the top one (or sample from it). It is one network call per move, so it is very fast.</li>
+</ul>
+<h2>Why not just use <code>p</code></h2>
+<p>Your own manifest shows the difference. Against minimax at depth 4, the policy alone scored 0.644 and the full search scored 0.966. <code>p</code> is a good guess with no lookahead, so it misses tactics a few moves deep, like a move that gives up a corner. The search checks those cases.</p>
+<h2>What decides which one to use</h2>
+<p>It's a design choice, not a property of the model. Both use the same file. The SPEC chose the search because:
+- the levels are built from the visit counts and a temperature;
+- Master needs the strongest play;
+- the time budget of about 2 seconds per move allows 200 simulations.</p>
+<p>A policy-only mode could be a cheap extra: a "fast" opponent or a very low level. Its strength would come from <code>p</code> alone, though, and the temperature would act on the logits, not on the visit counts. That would make the ladder less well defined than the one in the SPEC.</p></div></div></details></section>
+<section class="turn" id="t16"><h2>Turn 16</h2><div class="prompt">then why do we need to package a RL at all, we are not updating the model right ? then how does having a good P network help at test time ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>You package the result of the RL, not the RL. The training process (self-play, replay buffer, gradient updates) stays in your OthelloRL repo. What's in the app is a frozen network. And you're right that nothing updates at test time: every bit of learning has already happened, and the network is the stored result.</p>
+<h2>Why a good <code>p</code> and <code>v</code> still help when frozen</h2>
+<p>The search has a small budget, and the network decides how well it is spent.</p>
+<p><strong>1. <code>p</code> makes 200 simulations reach deep.</strong>
+Othello has roughly 10 legal moves per position. A uniform search over 10 moves with 200 simulations gives about 20 visits per move, which reaches depth 2 or 3 and no further. With a good <code>p</code>, most simulations go to the 2 or 3 plausible moves, and the tree gets much deeper along the lines that matter. The same 200 simulations then see further, because the network has already thrown away most bad moves.</p>
+<p><strong>2. <code>v</code> replaces rollouts.</strong>
+Classic MCTS scores a leaf by playing random moves to the end of the game, which is slow and noisy, because random play is a poor guide to who is winning. Here, one network call returns a learned estimate of the result. That single call is the reason 200 simulations are enough.</p>
+<p><strong>3. The search corrects the network where it is weak.</strong>
+<code>p</code> and <code>v</code> are approximations. They are good on average and wrong on some tactical positions. The search looks a few moves ahead and uses the real game rules, so it catches some of those mistakes. The network, in turn, supplies what the search lacks: an evaluation that pure lookahead can't compute.</p>
+<p>So each part covers the other's weakness, and neither is enough alone. Your results show it: policy only was 0.644 against minimax depth 4, and the search with the same weights was 0.966.</p>
+<h2>What each alternative would give you</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>What you'd get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frozen network, no search</td>
+<td>Fast, weaker (the policy-only rows).</td>
+</tr>
+<tr>
+<td>Search with no network (random rollouts, uniform priors)</td>
+<td>Much weaker at 200 simulations. It would need thousands of rollouts.</td>
+</tr>
+<tr>
+<td>Frozen network and search (the plan)</td>
+<td>Strongest at the budget of about 2 s per move.</td>
+</tr>
+</tbody>
+</table>
+<h2>Why the RL was still needed</h2>
+<p>The trained network is where all the Othello knowledge lives: which positions are good, which moves look promising. Producing that knowledge took the 100,000 self-play games. The app only borrows it.</p>
+<p>You can also keep learning later by running more training in OthelloRL and swapping in a new <code>.onnx</code> plus manifest. The app would not need code changes, since the manifest carries the settings.</p></div></div></details></section>
+<section class="turn" id="t17"><h2>Turn 17</h2><div class="prompt">how are the p component and v component used ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>Here is one network call, followed through with example numbers.</p>
+<h2>What comes out of a call</h2>
+<p>The search reaches a position it hasn't seen and calls the network once. It gets back:
+- <code>policy_logits</code>: 65 raw numbers
+- <code>value</code>: one number, say +0.3 (the side to move is slightly ahead)</p>
+<h2>How <code>p</code> is used</h2>
+<ol>
+<li><strong>Mask the illegal moves.</strong> Suppose only 3 moves are legal: C4, D3 and F5. Throw away the other 62 logits.</li>
+<li><strong>Softmax the legal ones</strong> into probabilities, e.g. C4 = 0.55, D3 = 0.35, F5 = 0.10.</li>
+<li><strong>Store them</strong> as the priors P on the new node's child edges. They are written once and never changed during this search.</li>
+</ol>
+<p>Later, whenever a simulation passes through this node, the PUCT rule reads them in the exploration bonus <code>c_puct · P(a) · √(ΣN) / (1 + N(a))</code>. So <code>p</code> decides which move gets tried first and how long a move with few visits keeps getting a chance. C4 gets the first visit and F5 gets one only when the others stop looking better.</p>
+<h2>How <code>v</code> is used</h2>
+<ol>
+<li>The simulation ends at this new node, so <code>value</code> +0.3 is the simulation's result.</li>
+<li><strong>Back up.</strong> Go back up the path to the root. At each edge, add 1 to N and add the value to W. The value's sign flips at each step, because +0.3 for the side to move here is -0.3 for the player who moved into this position. So the parent edge gets -0.3, the one above it +0.3, and so on.</li>
+<li>Recompute Q = W/N on each edge.</li>
+</ol>
+<p>So <code>v</code> doesn't choose anything directly. It becomes the Q term in later PUCT decisions, which makes moves that lead to good-looking positions more attractive.</p>
+<h2>In one line</h2>
+<p><code>p</code> is read when a node is created and shapes where later simulations go. <code>v</code> is read when a simulation ends and shapes how good each move looks afterwards. At the end of 200 simulations, only the root's visit counts matter for the move choice.</p>
+<p>Neither is used for the final move directly. The only place <code>p</code> alone could pick a move is the policy-only mode, with no search.</p></div></div></details></section>
+<section class="turn" id="t18"><h2>Turn 18</h2><div class="prompt">what is W ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>W is the <strong>total value</strong> collected on an edge (a move from a node). It's the running sum of every value backed up through that edge during the search.</p>
+<ul>
+<li>Each simulation that passes through the edge adds its result to W. The result is either the network's <code>v</code> at the leaf or the real game result.</li>
+<li>The sign is flipped at each ply on the way up, so W is always counted from the point of view of the player making that move.</li>
+<li><strong>Q = W / N</strong> is the average value per visit, and the one used in the PUCT score.</li>
+</ul>
+<p><strong>Example.</strong> The move A has been visited 4 times. The values backed up through it were +0.3, +0.1, -0.2 and +0.4. Then N = 4, W = +0.6 and Q = 0.15.</p>
+<p>Why store W and not just Q? A sum is easy to update: add the new value, then divide by N. It also lets the average be computed exactly without storing the earlier values.</p>
+<p>W is not used on its own. Neither W nor Q picks the final move; only N does.</p></div></div></details></section>
 </main></body></html>
