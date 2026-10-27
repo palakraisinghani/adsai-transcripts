@@ -1,0 +1,513 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oroletto Transcript</title><style>
+:root{--bg:#faf7f2;--fg:#2a2622;--mut:#7a7068;--card:#fff;--bd:#e6ded3;--acc:#2f6f5e;--pb:#e8f2ee;--code:#f1ede6}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1c1b;--fg:#e6ebe8;--mut:#93a09a;--card:#232725;--bd:#343a37;--acc:#7cc4ab;--pb:#1f2d28;--code:#2a2f2c}}
+:root[data-theme="dark"]{--bg:#1a1c1b;--fg:#e6ebe8;--mut:#93a09a;--card:#232725;--bd:#343a37;--acc:#7cc4ab;--pb:#1f2d28;--code:#2a2f2c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:820px;margin:0 auto;padding:24px 16px 80px}
+h1{font-size:1.6rem;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 20px}
+h2.part{font-size:1.15rem;margin:34px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--bd)}
+.turn{margin:0 0 22px}.turn h2{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 6px}
+.prompt{background:var(--pb);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.prompt.none{background:none;color:var(--mut);font-style:italic}
+details{margin-top:8px;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+summary{cursor:pointer;padding:10px 14px;font-weight:600;color:var(--acc)}
+.resp{padding:2px 16px 14px;overflow-wrap:anywhere}
+.msg{white-space:pre-wrap;margin:8px 0}
+.tool{white-space:pre-wrap;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--mut);margin:6px 0;padding-left:10px;border-left:3px solid var(--bd)}
+.meta{white-space:pre-wrap;font-size:.85rem;color:var(--mut);font-style:italic;margin:8px 0}
+details.out{margin:6px 0;background:var(--code);border:0}details.out summary{font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;font-weight:400;color:var(--mut);padding:6px 10px}
+details.out 
+.tbl{font:12.5px/1.25 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre;margin:6px 0}
+pre.diff{margin:0;border-radius:0 0 8px 8px}
+.cmd{color:var(--mut);font-size:.85rem}.cmdline{font-family:ui-monospace,Menlo,Consolas,monospace}.cmd .meta,.cmd .tool{margin:2px 0}
+pre.diff{background:var(--code);padding:10px;border-radius:8px;overflow-x:auto;font-size:12px;line-height:1.4}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+.bar{display:flex;gap:8px;margin:0 0 8px;flex-wrap:wrap}button{font:inherit;padding:6px 12px;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:8px;cursor:pointer}
+
+.md p{margin:8px 0}.md h1,.md h2,.md h3,.md h4{font-size:1.02rem;margin:16px 0 6px;color:var(--fg);text-transform:none;letter-spacing:0}
+.md ul,.md ol{padding-left:22px;margin:6px 0}.md table{border-collapse:collapse;display:block;overflow-x:auto;margin:8px 0;font-size:.9rem}
+.md th,.md td{border:1px solid var(--bd);padding:4px 8px;text-align:left;vertical-align:top}
+.md pre{background:var(--code);padding:10px;border-radius:8px;overflow-x:auto;font-size:12.5px}.md pre code{background:none;padding:0}
+</style></head><body><main>
+<h1>Oroletto: interview prep</h1><p class="sub">Claude Code transcript: interview prep for Oroletto (OthelloRL). 4 prompts. Click a response to open it.</p>
+<div class="bar"><button onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">Expand all</button><button onclick="document.querySelectorAll('details').forEach(d=>d.open=false)">Collapse all</button></div>
+<section class="turn" id="t1"><h2>Turn 1</h2><div class="prompt">mhey . I have an interview and they might ask me about this project. give me most likely questiuons and technical ones</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>Here are the questions you're most likely to get, with what to say for each, using this project's own facts.</p>
+<h2>1. The overview (almost certain)</h2>
+<p><strong>"Tell me about this project."</strong>
+Give a 60-second version:
+- <strong>Goal:</strong> find out how far different RL methods can get at Othello, starting from just the rules.
+- <strong>Path:</strong> classical methods on 6×6 → self-play methods → whether opponent variety helps (league, co-evolution) → scaling the winner to 8×8.
+- <strong>Result:</strong> the AlphaZero agent, Oroletto, beats every hand-written bot. On 8×8 it plays between Edax levels 3 and 5, and it's deployed as a web game with four difficulty levels.</p>
+<p><strong>"Why Othello?"</strong>
+- The game is small enough to train on one machine but too big to solve by brute force on 8×8.
+- It has a clear win/lose signal.
+- The position swings sharply, so greedy play (grabbing discs) loses. That makes it a good test of whether an agent learns long-term strategy.</p>
+<p><strong>"Why start on 6×6?"</strong>
+- Iteration speed: experiments on 6×6 took hours, while one 8×8 seed took about 2.2 days.
+- Use 6×6 to pick the method, then pay for 8×8 once.</p>
+<h2>2. RL fundamentals they'll probe</h2>
+<p><strong>"Explain the RL setup."</strong>
+- <strong>State:</strong> the board, encoded as planes for my discs, opponent discs and legal moves.
+- <strong>Action:</strong> one of the squares, or pass.
+- <strong>Reward:</strong> +1, 0 or −1 at the end of the game only. That's a sparse, delayed reward.
+- <strong>Key challenge:</strong> credit assignment over about 30 moves per player.</p>
+<p><strong>"Why is a sparse reward hard, and how did you deal with it?"</strong>
+- Value-based methods have to propagate the final result back through bootstrapping, which is slow and noisy.
+- AlphaZero sidesteps this: MCTS gives a strong policy target every move, and the value net learns from the final outcome z.</p>
+<p><strong>"On-policy vs off-policy?"</strong>
+- <strong>DQN (off-policy):</strong> a replay buffer, so it reuses old data.
+- <strong>PPO (on-policy):</strong> needs fresh data, but its updates are more stable.
+- Trade-off: sample efficiency vs stability.</p>
+<p><strong>"What's Double DQN and why use it?"</strong>
+- Vanilla DQN takes the max over noisy Q estimates, which biases it upward.
+- Double DQN picks the action with the online net and evaluates it with the target net.
+- The project compared vanilla and Double DQN directly in the frozen-target experiment.</p>
+<h2>3. AlphaZero (the core, so expect depth here)</h2>
+<p><strong>"How does AlphaZero work?"</strong>
+- <strong>Network:</strong> a policy+value ResNet takes the board and outputs move probabilities p and a value v.
+- <strong>Search:</strong> MCTS with PUCT. Each simulation picks the child that maximises Q + c·P·√N_parent / (1 + N_child), expands a leaf, evaluates it with the network (no rollout), and backs up v.
+- <strong>Move choice:</strong> play the <strong>most-visited</strong> move, not the one with the highest Q.
+- <strong>Training targets:</strong> the visit distribution π for the policy (cross-entropy) and the game result z for the value (MSE).</p>
+<p><strong>"Why pick by visit count rather than max Q?"</strong>
+- Q is a mean of noisy backed-up values. A rarely visited move can have a lucky high Q.
+- Visits reflect where the search kept going after averaging, so they're robust to a few noisy evaluations.
+- The report has a worked example: a position where max-Q ≠ max-N at low budget, and the two agree as simulations increase.</p>
+<p><strong>"Why does AlphaZero beat DQN and PPO here?"</strong>
+- Search acts as a policy-improvement operator: the network learns to imitate a stronger version of itself (π), every move.
+- That's a dense, high-quality signal. DQN and PPO only get the sparse reward.</p>
+<p><strong>"What's the role of temperature and Dirichlet noise?"</strong>
+- In self-play they add exploration, so the agent sees varied positions.
+- In the app, temperature on the visit counts is the difficulty dial.</p>
+<h2>4. Experimental design (shows research maturity)</h2>
+<p><strong>"How did you evaluate?"</strong>
+- Fixed opening positions, played with both colours.
+- Hundreds of games per pairing, reported with 95% confidence intervals.
+- Multiple seeds.
+- Rule-based bots as fixed yardsticks: random, a heuristic, and minimax at depths 2–4. On 8×8, Edax as an external yardstick.</p>
+<p><strong>"Why openings and both colours?"</strong>
+- Deterministic agents would otherwise play the same game every time.
+- First-move advantage would also bias the scores.</p>
+<p><strong>"What was the frozen-target experiment?"</strong>
+- <strong>Setup:</strong> identical DQNs, each trained against one fixed opponent (random, heuristic or minimax-d3).
+- <strong>Finding:</strong> once a learner reliably beats its trainer, games stop teaching it and progress stalls. Self-play keeps raising the bar. That's the motivation for self-play.</p>
+<p><strong>"Did opponent variety help (league, co-evolution)?"</strong>
+- <strong>League:</strong> mixing in past opponents didn't beat pure self-play, and strength fell as the mixing fraction grew.
+- <strong>Co-evolution:</strong> a population tied self-play at equal games per agent, and was worse at equal total compute. It showed no extra diversity and no strategy cycles.
+- Negative results are still results. Be ready to say why: in a two-player zero-sum game, self-play already provides an adaptive curriculum.</p>
+<h2>5. Engineering and debugging (interviewers love these)</h2>
+<p><strong>"Hardest bug?"</strong> Tell the <strong>denormal floats</strong> story:
+- <strong>Symptom:</strong> training throughput dropped about 10× partway through a run.
+- <strong>Cause:</strong> weight decay shrank weights into denormal (subnormal) float range, where the CPU falls back to very slow arithmetic.
+- <strong>Diagnosis:</strong> profiling, and noticing the slowdown tracked training time, not data.
+- <strong>Fix:</strong> flush denormals to zero and clamp tiny weights.
+- <strong>Lesson:</strong> monitor throughput, not just loss.</p>
+<p><strong>"How did you deploy it?"</strong>
+- Exported the network to ONNX and checked parity with PyTorch (max difference about 2.5e-6).
+- Wrote a manifest with a SHA-256 hash and golden fixtures for parity tests in the app.</p>
+<p><strong>"How do you make difficulty levels from one model?"</strong>
+- Same search budget for every level (200 simulations).
+- Sample moves with probability ∝ N^(1/T): Easy T=8, Medium T=2, Hard T=1, Master T=0.
+- Calibrated so each level beats the one below at least 70% of the time. The measured scores were 76%, 86% and 86%.
+- Why not fewer simulations? Temperature degrades play more smoothly and keeps the moves human-plausible.</p>
+<p><strong>"How did you scale from 6×6 to 8×8?"</strong>
+- Only the config changed: 6×64 ResNet (vs 4×64), 150 simulations (vs 64), 100k self-play games per seed.
+- About 52 hours per seed on CPU.</p>
+<h2>6. Critical-thinking questions</h2>
+<p><strong>"What are the limitations?"</strong>
+- CPU compute: a small network and few seeds on 8×8.
+- Edax ran without its opening book.
+- Cross-paper comparisons to OLIVAW are indirect.
+- Nothing was distilled for speed.</p>
+<p><strong>"How would you make it stronger?"</strong>
+- A bigger network and more simulations on a GPU.
+- Use explored-but-not-played positions as extra training data, as OLIVAW did.
+- Symmetry augmentation (8 board symmetries).
+- An endgame solver for the last ~12 empty squares.
+- Have Oroletto play Edax/Egaroucid itself rather than only being measured against it.</p>
+<p><strong>"How does it compare to top engines like Edax or Egaroucid?"</strong>
+- They use pattern-based evaluations (n-tuples) fitted on huge position databases, plus very fast alpha-beta and exact endgame solving.
+- Oroletto learns everything from self-play, with no human data, but searches far fewer nodes per second.</p>
+<p><strong>"If you did it again?"</strong>
+- Use a GPU earlier, monitor throughput from day one, and decide evaluation protocols before training.</p>
+<h2>7. Quick-fire technical questions</h2>
+<ul>
+<li><strong>PUCT vs UCB1:</strong> PUCT adds the policy prior P, so search focuses on moves the network likes.</li>
+<li><strong>Why a ResNet:</strong> skip connections keep gradients flowing in deeper nets, and convolutions share weights across board locations.</li>
+<li><strong>Value target z vs bootstrapped:</strong> z is unbiased but high-variance. Bootstrapping is the reverse.</li>
+<li><strong>Overfitting in self-play:</strong> watch for strategy collapse. Evaluate against fixed external bots, not just previous versions.</li>
+<li><strong>Exploration vs exploitation:</strong> ε-greedy (DQN), entropy bonus (PPO), Dirichlet noise and temperature (AlphaZero).</li>
+<li><strong>What's a confidence interval on a win rate:</strong> the Wilson or normal approximation, √(p(1−p)/n).</li>
+</ul>
+<p><strong>Tip:</strong> have three concrete numbers memorised: beats minimax-d4 about 97% on 8×8, sits between Edax levels 3 and 5, and the denormal bug was about 10× slower. Concrete numbers make answers credible.</p>
+<p>I can turn this into a one-page cheat sheet, or run a mock interview where I ask the questions and you answer.</p></div></div></details></section>
+<section class="turn" id="t2"><h2>Turn 2</h2><div class="prompt">Basically explain how alpha zero works Explain MCTS, used in Alpha zero how does it side step the sparse reward ?
+Exxplain on policy vs off policy better. 
+explain MCTS and PUCT. 
+Where does the model store how many times it has made a particular move ?</div>
+<details><summary>Claude's response</summary><div class="resp"><details class="out"><summary>Bash: Find MCTS node storage in code</summary><pre class="diff">grep -rn &quot;class \|self\.N\|self\.W\|self\.Q\|self\.P\b\|c_puct\|def &quot; othello/agents/mcts*.py othello/**/mcts*.py 2&gt;/dev/null | head -40; ls othello othello/*/ | head -40</pre></details><details class="out"><summary>Output</summary><pre class="diff">othello:
+agents
+cli.py
+env.py
+eval
+__init__.py
+__main__.py
+models.py
+__pycache__
+rl
+symmetry.py
+utils
+
+othello/agents/:
+base.py
+edax.py
+heuristic.py
+__init__.py
+minimax.py
+__pycache__
+random_agent.py
+registry.py
+
+othello/eval/:
+arena.py
+elo.py
+__init__.py
+population_metrics.py
+__pycache__
+replay.py
+
+othello/__pycache__/:
+cli.cpython-310.pyc
+cli.cpython-312.pyc
+env.cpython-310.pyc
+env.cpython-312.pyc
+__init__.cpython-310.pyc
+__init__.cpython-312.pyc
+__main__.cpython-310.pyc
+__main__.cpython-312.pyc</pre></details><details class="out"><summary>Bash: Locate MCTS node fields in AlphaZero code</summary><pre class="diff">ls othello/rl; grep -n &quot;class \|\.N\b\|\.N\[\|\.W\|\.P\b\|c_puct\|visit\|def &quot; othello/rl/alphazero*.py | head -60</pre></details><details class="out"><summary>Output</summary><pre class="diff">alphazero
+common.py
+dqn.py
+__init__.py
+linear.py
+pool.py
+population.py
+ppo.py
+__pycache__
+tabular.py
+ugrep: warning: othello/rl/alphazero*.py: No such file or directory</pre></details><details class="out"><summary>Bash: Inspect MCTS module structure</summary><pre class="diff">ls othello/rl/alphazero; grep -n &quot;class \|N\b.*=\|\.W\|\.P\b\|c_puct\|visit\|def &quot; othello/rl/alphazero/mcts.py | head -60</pre></details><details class="out"><summary>Output</summary><pre class="diff">__init__.py
+mcts.py
+net.py
+__pycache__
+selfplay.py
+train.py
+19:class Node:
+22:    def __init__(self, state):
+25:        self.P = self.N = self.W = None
+30:        self.sumN = 0
+33:def terminal_value(env, state):
+39:class Evaluator:
+42:    def __init__(self, env, net):
+48:    def __call__(self, states):
+62:class MCTS:
+63:    def __init__(self, env, evaluator, c_puct=1.5, dirichlet_alpha=0.5, noise_frac=0.25, rng=None):
+65:        self.c_puct, self.alpha, self.eps = c_puct, dirichlet_alpha, noise_frac
+68:    def _expand(self, node, moves, priors):
+70:        node.P = priors
+71:        node.N = [0] * len(moves)
+72:        node.W = [0.0] * len(moves)
+76:    def _select(self, node):
+77:        sq = self.c_puct * math.sqrt(node.sumN + 1)
+79:        N, W, P = node.N, node.W, node.P
+87:    def search(self, roots, sims, add_noise):
+99:                    r.P = [(1 - self.eps) * p + self.eps * z for p, z in zip(r.P, noise)]
+132:    def _backup(path, v):
+135:            node.N[i] += 1
+136:            node.W[i] += v
+137:            node.sumN += 1
+139:    def policy(self, root, num_actions):
+147:    def choose(self, root, temperature):
+148:        N = np.array(root.N, dtype=np.float64)
+149:        if temperature == 0 or N.sum() == 0:
+150:            best = np.flatnonzero(N == N.max())</pre></details><details class="out"><summary>Bash: Read Node, select, backup, policy code</summary><pre class="diff">sed -n 19,32p othello/rl/alphazero/mcts.py; sed -n 76,86p othello/rl/alphazero/mcts.py; sed -n 128,146p othello/rl/alphazero/mcts.py; grep -n &quot;tree\|root\|reuse&quot; othello/rl/alphazero/selfplay.py | head</pre></details><details class="out"><summary>Output</summary><pre class="diff">class Node:
+    __slots__ = (&quot;state&quot;, &quot;moves&quot;, &quot;P&quot;, &quot;N&quot;, &quot;W&quot;, &quot;children&quot;, &quot;expanded&quot;, &quot;terminal&quot;, &quot;value&quot;, &quot;sumN&quot;)
+
+    def __init__(self, state):
+        self.state = state
+        self.moves = None
+        self.P = self.N = self.W = None
+        self.children = None
+        self.expanded = False
+        self.terminal = False
+        self.value = 0.0
+        self.sumN = 0
+
+
+    def _select(self, node):
+        sq = self.c_puct * math.sqrt(node.sumN + 1)
+        best, best_i = -1e9, 0
+        N, W, P = node.N, node.W, node.P
+        for i in range(len(P)):
+            n = N[i]
+            u = (W[i] / n if n else 0.0) + sq * P[i] / (1 + n)
+            if u &gt; best:
+                best, best_i = u, i
+        return best_i
+
+                    self._backup(path, v)
+        return roots
+
+    @staticmethod
+    def _backup(path, v):
+        for node, i in reversed(path):
+            v = -v
+            node.N[i] += 1
+            node.W[i] += v
+            node.sumN += 1
+
+    def policy(self, root, num_actions):
+        &quot;&quot;&quot;Visit-count distribution over the full action space.&quot;&quot;&quot;
+        pi = np.zeros(num_actions, np.float32)
+        total = sum(root.N)
+        for m, n in zip(root.moves, root.N):
+            pi[m] = n / total if total else 1.0 / len(root.moves)
+        return pi
+
+36:        roots, idx = [], []
+43:                roots.append(Node(states[i]))
+45:        if roots:
+46:            mcts.search(roots, cfg[&quot;sims&quot;], add_noise=True)
+47:            for i, r in zip(idx, roots):
+93:        roots, idx = [], []
+102:                roots.append(Node(s))
+104:        if roots:
+105:            mcts.search(roots, sims, add_noise=False)
+106:            for i, r in zip(idx, roots):</pre></details><div class="md"><h2>1. AlphaZero in one picture</h2>
+<p>AlphaZero has two parts that improve each other:</p>
+<ul>
+<li><strong>A neural network</strong> f(s) → (p, v). Given a board s, it outputs:</li>
+<li><strong>p</strong>: a prior over moves ("which moves look promising");</li>
+<li><strong>v</strong>: a value in [−1, +1] ("who is winning from here").</li>
+<li><strong>A search (MCTS)</strong> that uses the network to think ahead a few hundred positions, then outputs a better move distribution <strong>π</strong> than p alone.</li>
+</ul>
+<p>The training loop:</p>
+<pre><code>repeat:
+  1. Self-play: for each move, run MCTS from the current board -&gt; π
+     play a move sampled from π, continue until the game ends -&gt; result z (+1/0/-1)
+  2. Store (s, π, z) for every position of the game
+  3. Train the network:  p -&gt; π  (cross-entropy),   v -&gt; z  (MSE)
+</code></pre>
+<p>The idea that makes it work: <strong>search is a policy-improvement operator.</strong> MCTS with the network plays better than the network alone. The network is then trained to imitate the search. Next iteration, the search starts from a better network, so it's stronger still. The agent bootstraps itself upward.</p>
+<h2>2. MCTS, step by step (with PUCT)</h2>
+<p>The search builds a tree. Each node is a board position and each edge is a move. Every edge (s, a) stores four numbers:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>N(s,a)</strong></td>
+<td>how many simulations went through this move</td>
+</tr>
+<tr>
+<td><strong>W(s,a)</strong></td>
+<td>sum of values backed up through it</td>
+</tr>
+<tr>
+<td><strong>Q(s,a)</strong> = W/N</td>
+<td>average value of this move so far</td>
+</tr>
+<tr>
+<td><strong>P(s,a)</strong></td>
+<td>the network's prior for this move</td>
+</tr>
+</tbody>
+</table>
+<p>One <strong>simulation</strong> has four phases:</p>
+<ol>
+<li><strong>Select.</strong> Start at the root and walk down the tree. At each node, pick the move that maximises the PUCT score:</li>
+</ol>
+<p><strong>U(s,a) = Q(s,a) + c_puct · P(s,a) · √N(s) / (1 + N(s,a))</strong></p>
+<ul>
+<li><strong>Q</strong> is the exploitation term: "this move has worked well so far".</li>
+<li>The second term is exploration:<ul>
+<li>it is large when the network likes the move (P high);</li>
+<li>it is large when the move has been tried rarely (N(s,a) small);</li>
+<li>it shrinks as the move gets visited.</li>
+</ul>
+</li>
+<li>
+<p>c_puct sets the balance between the two. Ours is 1.5.</p>
+</li>
+<li>
+<p><strong>Expand.</strong> Stop at a leaf, i.e. a position not yet in the tree. Call the network once to get p (the priors for its children) and v.</p>
+</li>
+<li>
+<p><strong>Evaluate.</strong> Use <strong>v</strong> as the leaf's value. There is <strong>no random rollout to the end of the game</strong>, which classic MCTS used. The value net replaces it.</p>
+</li>
+<li>
+<p><strong>Backup.</strong> Walk back up the path. On every edge, add 1 to N and add v to W. Flip the sign at each level, because a position good for me is bad for my opponent.</p>
+</li>
+</ul>
+<p>After, say, 150 simulations:</p>
+<ul>
+<li><strong>To play:</strong> pick the root move with the <strong>highest N</strong>. Visit count is robust because Q can be inflated by a few lucky evaluations, while a high N means the search kept coming back to that move.</li>
+<li><strong>To train:</strong> π = N(root, a) / Σ N, the normalised visit counts.</li>
+</ul>
+<p><strong>PUCT vs plain UCT/UCB1:</strong> UCB1 explores all moves evenly at first. PUCT weights exploration by the network's prior P, so a few hundred simulations go to the 2–3 sensible moves instead of all ~10.</p>
+<h2>3. How does this sidestep the sparse reward?</h2>
+<p>The problem: in Othello the only reward is +1/0/−1 at the end, about 60 moves later. A method like DQN has to push that single number backward one step at a time through bootstrapping (Q(s) ← r + γ max Q(s′)). That is slow, noisy, and it's hard to tell which of the 30 moves deserved credit.</p>
+<p>AlphaZero gets around it in three ways:</p>
+<ol>
+<li><strong>A dense policy target on every move.</strong> Every position gets a full target distribution π from the search, which says "these are the good moves here". Most of the learning happens through this supervised-style signal, not through the reward. It's like having a teacher annotate every move.</li>
+<li><strong>The value net turns the sparse reward into a dense estimate.</strong> v is trained directly on the final outcome z: plain regression with no bootstrapping chain. MCTS then uses v at every leaf, so the search gets an immediate "who is winning" estimate without waiting for the game to end.</li>
+<li><strong>Lookahead does the credit assignment.</strong> The search explicitly simulates what follows a move, so "this move leads to positions my value net thinks are lost" is discovered within a single move's search, not over thousands of games.</li>
+</ol>
+<p>In short: <strong>the reward only has to teach the value net. The search turns the value net into a rich per-move target, and that is what trains the policy.</strong></p>
+<h2>4. On-policy vs off-policy, more precisely</h2>
+<p>Two policies matter:</p>
+<ul>
+<li><strong>Behaviour policy:</strong> the one that collected the data (made the moves).</li>
+<li><strong>Target policy:</strong> the one you're trying to learn or evaluate.</li>
+</ul>
+<p><strong>On-policy (PPO, SARSA, REINFORCE).</strong> The two are the same. The update formula is only mathematically valid for data generated by the current policy.</p>
+<ul>
+<li>After one update the policy changes, so old data is stale and must be thrown away.</li>
+<li>Pros: stable and theoretically clean.</li>
+<li>Cons: sample-hungry.</li>
+<li>PPO stretches this a little. It reuses a batch for a few epochs, and its clipping keeps the new policy close to the one that collected the data.</li>
+</ul>
+<p><strong>Off-policy (DQN, Q-learning).</strong> The two can differ. Q-learning's target r + γ maxₐ Q(s′, a) asks "what is the value if I act <em>greedily</em> from here?", whoever actually made the move.</p>
+<ul>
+<li>So you can store every transition in a <strong>replay buffer</strong> and reuse it many times, even data from old policies or other agents.</li>
+<li>Pros: sample-efficient.</li>
+<li>Cons: can be unstable. The "deadly triad" is function approximation + bootstrapping + off-policy data.</li>
+</ul>
+<p><strong>Analogy:</strong> on-policy is learning only from your own current games. Off-policy is also studying recordings of old games, including other people's.</p>
+<p><strong>Where AlphaZero sits.</strong> Its replay buffer holds the last few iterations of self-play, so the data is slightly off-policy. But its targets (π from search, z from the game) aren't derived through a max-based bootstrap, so the stale data does little harm. It behaves close to on-policy in practice.</p>
+<p><strong>In this project:</strong>
+- <strong>Off-policy:</strong> DQN, which is why the league experiment could mix in games against past opponents through the buffer.
+- <strong>On-policy:</strong> PPO.</p>
+<h2>5. Where are the visit counts stored?</h2>
+<p><strong>Not in the network.</strong> They live in the <strong>temporary search tree</strong>, which exists only while choosing one move.</p>
+<p>In our code (<code>othello/rl/alphazero/mcts.py</code>):</p>
+<ul>
+<li><strong>Storage.</strong> Each <code>Node</code> (line 19) holds parallel arrays, one entry per legal move: <code>node.P</code>, <code>node.N</code>, <code>node.W</code>, plus <code>sumN</code> (the total visits at that node). They're created in <code>_expand</code> (lines 70–72).</li>
+<li><strong>Updates.</strong> <code>_backup</code> (line 132) does <code>node.N[i] += 1</code>, <code>node.W[i] += v</code> along the path.</li>
+<li><strong>Reading.</strong> <code>_select</code> (lines 76–85) reads N, W and P to compute the PUCT score. <code>policy</code> (line 139) turns <code>root.N</code> into π. <code>choose</code> (line 147) picks the move, using the most-visited when T = 0.</li>
+<li><strong>Lifetime.</strong> A fresh root <code>Node</code> is built for every move (in <code>selfplay.py</code>), and the tree is thrown away after the move. We don't reuse the tree between moves.</li>
+</ul>
+<p>So the counts are a scratchpad. What persists is their <strong>distilled lesson</strong>: π is saved with the position in the replay buffer, and training pushes the network's p toward π. Over time <strong>the network's weights absorb "which moves the search tends to visit"</strong>, so later searches start with better priors. In other words:</p>
+<blockquote>
+<p>N is short-term memory, inside one search. The network weights are long-term memory, learned from many searches' N.</p>
+</blockquote>
+<p>This distinction is a good interview point: tabular methods store per-state counts permanently, but AlphaZero can't, because there are far too many positions. It generalises through the network instead.</p></div></div></details></section>
+<section class="turn" id="t3"><h2>Turn 3</h2><div class="prompt">which is updated every move and which is updated less policy/target ?</div>
+<details><summary>Claude's response</summary><div class="resp"><details class="out"><summary>Bash: Check DQN target-net and AZ update frequencies</summary><pre class="diff">grep -n &quot;target\|train_every\|update_every\|tau&quot; othello/rl/dqn.py | head -20; grep -rn &quot;target\|train_every&quot; configs/*dqn*.yaml | head; grep -n &quot;games_per_iter\|iter\|buffer\|epochs&quot; configs/alphazero.yaml | head</pre></details><details class="out"><summary>Output</summary><pre class="diff">1:&quot;&quot;&quot;Vanilla DQN (Mnih et al. 2015): replay buffer + periodically synced target net.
+66:                 batch=128, train_every=4, target_sync=2_000, warmup=5_000, double=False):
+75:        self.gamma, self.batch, self.train_every = gamma, batch, train_every
+76:        self.target_sync, self.warmup, self.double = target_sync, warmup, double
+105:            if len(self.buf) &gt;= self.warmup and self.steps % self.train_every == 0:
+118:            target = r + self.gamma * nxt
+120:        loss = nn.functional.smooth_l1_loss(q, target)
+127:        if self.updates % self.target_sync == 0:
+25:games_per_iter: 256
+28:buffer_positions: 150000
+29:min_buffer: 5000</pre></details><div class="md"><p>It depends whether you mean DQN's two networks or the two policies from the on/off-policy definition. The names overlap, so interviewers often mix them up.</p>
+<h2>DQN: online network vs target network</h2>
+<p>DQN keeps two copies of the same Q-network:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Online network</strong> (often called the "policy net")</th>
+<th><strong>Target network</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Updated</td>
+<td><strong>Often</strong>, by gradient descent</td>
+<td><strong>Rarely</strong>, by copying the online weights</td>
+</tr>
+<tr>
+<td>In our code</td>
+<td>one training step every <strong>4 moves</strong> (<code>train_every=4</code>)</td>
+<td>synced every <strong>2,000 training steps</strong> (<code>target_sync=2_000</code>), i.e. about every 8,000 moves</td>
+</tr>
+<tr>
+<td>Job</td>
+<td>chooses moves (ε-greedy) and is the network being trained</td>
+<td>computes the TD target: r + γ · max Q_target(s′, a′)</td>
+</tr>
+</tbody>
+</table>
+<p>Code: <code>othello/rl/dqn.py:66</code> (settings), <code>:105</code> (train every 4 steps), <code>:127</code> (sync).</p>
+<p><strong>Why update the target net rarely?</strong> The loss is (Q_online(s,a) − target)². If the target came from the same network you're updating, every gradient step would also move the target. That's like chasing your own shadow, and it tends to oscillate or diverge. Freezing the target for a few thousand steps makes each stretch of training a stable regression problem. Then you copy the weights over and repeat.</p>
+<p><strong>Double DQN</strong> uses both networks in the target:
+- the <strong>online</strong> net picks the best next action: a<em> = argmax Q_online(s′, ·);
+- the </em><em>target</em><em> net scores it: Q_target(s′, a</em>).</p>
+<p>Splitting selection from evaluation removes the overestimation bias of taking a max over noisy estimates.</p>
+<h2>The on/off-policy terms: behaviour policy vs target policy</h2>
+<p>These two aren't updated on different schedules.</p>
+<ul>
+<li><strong>Behaviour policy:</strong> the one making moves. In DQN it's ε-greedy on the <em>online</em> net, so it changes whenever the online net changes (every 4 moves).</li>
+<li><strong>Target policy:</strong> the one being learned. In DQN it's the greedy policy (the max in the target).</li>
+</ul>
+<p>This pair is what makes DQN <strong>off-policy</strong>: it acts ε-greedily but learns about greedy play. That's unrelated to the "target network", which is only a stability trick.</p>
+<h2>AlphaZero, for comparison</h2>
+<p>AlphaZero has no target network.</p>
+<ul>
+<li><strong>Every move:</strong> a fresh MCTS tree is built, its counts N and W are filled in, and then it's discarded.</li>
+<li><strong>Rarely:</strong> the network is trained once per iteration, after <strong>256 self-play games</strong> (<code>games_per_iter: 256</code>). All games in an iteration use the same frozen weights.</li>
+</ul>
+<p><strong>One-line answer for the interview:</strong> "In DQN, the online network is trained every few steps and picks the moves. The target network is a frozen copy synced every few thousand steps, so the TD target doesn't move while we regress toward it."</p></div></div></details></section>
+<section class="turn" id="t4"><h2>Turn 4</h2><div class="prompt">Does Alpha zero predict p to indicate which move has the best likelihood to result in a win ?</div>
+<details><summary>Claude's response</summary><div class="resp"><div class="md"><p>No, not quite, and the difference is a good thing to get right in an interview.</p>
+<p><strong>p is "which move would my search pick"</strong>, not "how likely is this move to win". It's trained to imitate the MCTS visit distribution π. A high p(a) means "a deeper search tends to focus on move a". That correlates with good moves, but it isn't a win probability:</p>
+<ul>
+<li><strong>p sums to 1 across moves; win chances don't.</strong> If two moves both win 90% of the time, p might split 50/50 between them. Each gets 0.5, nowhere near 0.9.</li>
+<li><strong>p is relative.</strong> In a lost position the best move might still get p = 0.95, because it's the least bad, even though it rarely wins.</li>
+<li><strong>p carries some exploration.</strong> π comes from visit counts, which include visits made for exploration (and Dirichlet noise in self-play). So p is a "where to look" prior, not a verdict.</li>
+</ul>
+<p><strong>The win likelihood is v, the value head:</strong>
+- v(s) ∈ [−1, +1] is the <em>expected game outcome</em> from position s for the player to move.
+- It's trained on the actual result z.
+- Ignoring draws, (v + 1)/2 ≈ the probability of winning from s.</p>
+<p><strong>Per move, the closest thing to "chance this move wins" is Q(s, a)</strong> inside the search. It's the average of the v values backed up through move a, i.e. the expected outcome after playing a. Q is computed during search; the network doesn't output it directly.</p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Answers</th>
+<th>Where it comes from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>p(s, a)</strong></td>
+<td>"Which moves are worth searching / would search choose?"</td>
+<td>policy head, trained on π</td>
+</tr>
+<tr>
+<td><strong>v(s)</strong></td>
+<td>"How good is this position for me?"</td>
+<td>value head, trained on z</td>
+</tr>
+<tr>
+<td><strong>Q(s, a)</strong></td>
+<td>"How good is move a, according to the search?"</td>
+<td>MCTS: W / N</td>
+</tr>
+<tr>
+<td><strong>N(s, a)</strong></td>
+<td>"How confident is the search in a?"</td>
+<td>MCTS visit count; used to pick the move</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One-liner:</strong> "The policy p predicts where search will spend its effort, a ranking prior. The value v predicts the expected outcome. Move-level win estimates are the search's Q values, and the final move is chosen by visit count."</p></div></div></details></section>
+</main></body></html>
